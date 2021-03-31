@@ -1,0 +1,14 @@
+#!/bin/sh
+
+export DOMAIN="$(hostname)"
+export LAN="10.0.0.1/24"
+
+export DATA_TYPE="zfs"           # disk | img
+export DATA_PATH="/dev/ada1"
+export DATA_NAME="zdata"
+
+export DHCP_RANGE_FIRST="10.0.0.100"
+export DHCP_RANGE_LAST="10.0.0.200"
+
+export PKG_REPO=""
+export BASE_URL="https://download.freebsd.org/ftp/releases/amd64/amd64/12.2-RELEASE/base.txz"
