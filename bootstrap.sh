@@ -11,4 +11,4 @@ $EDITOR config.sh
 
 source config.sh
 
-./init.sh
+sh ./init.sh
