@@ -99,10 +99,40 @@ echo '127.0.0.1' > /etc/resolv.conf
 echo -e "\e[42mBIND is installed and configured\e[0m"
 
 echo -e "\e[34mSetting up DHCP server\e[0m"
-cat << EOF
+cat /usr/local/etc/namedb/dhcp-360.key > /usr/local/etc/dhcpd.conf
+cat << EOF >> /usr/local/etc/dhcpd.conf
+option domain-name-servers $(echo ${lan} | cut -d '/' -f 1);
 
+default-lease-time 600;
+max-lease-time 7200;
+
+## DDNS stuff :)
+ddns-updates on;
+ddns-update-style interim;
+update-static-leases on;
+authoritative;
+
+zone loc.${domain}. {
+        primary 127.0.0.1;
+        key rndc-key;
+}
+
+log-facility local7;
+
+subnet $(subcalc inet ${lan} | grep range: | cut -d ' ' -f 8) netmask $(subcalc inet ${lan} | grep netmask | cut -d ' ' -f 6) {
+        range ${dhcp_range_first} ${dhcp_range_last};
+        option subnet-mask $(subcalc inet ${lan} | grep netmask | cut -d ' ' -f 6);
+        option routers $(echo ${lan} | cut -d '/' -f 1);
+        option domain-name-servers $(echo ${lan} | cut -d '/' -f 1);
+        option domain-name "loc.${domain}";
+        ddns-domainname "loc.${domain}.";
+}
 EOF
 
+sysrc   dhcpd_enable="YES"
+service isc-dhcpd start
+
+echo -e "\e[42mISC DHCP Server is up and running :) \e[0m"
 ## END
 ENDTIME=$(date +%s)
 TIMSPENT=$(expr ${ENDTIME} - ${STARTTIME})
